@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 15px;
+      text-align: left;
+    }
+    th {
+      background-color: #333;
+      color: #fff;
+    }
+    button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Seller Dashboard</h1>
+  </header>
+  <main>
+    <h2>Product List</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Stock Level</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="productTableBody"></tbody>
+    </table>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Fetch product data from the API
+      fetch('your-api-endpoint/products')
+        .then(response => response.json())
+        .then(data => displayProducts(data))
+        .catch(error => console.error('Error fetching products:', error));
+
+      function displayProducts(products) {
+        const tableBody = document.getElementById('productTableBody');
+        tableBody.innerHTML = '';
+
+        products.forEach(product => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${product.id}</td>
+            <td>${product.name}</td>
+            <td>${product.stock}</td>
+            <td><button onclick="updateStock(${product.id})">Update Stock</button></td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
+
+      function updateStock(productId) {
+        // Implement logic to update stock through API
+        // You may need a prompt or input field for the new stock level
+        const newStock = prompt('Enter the new stock level:');
+        if (newStock !== null && !isNaN(newStock)) {
+          // Make a PUT request to update stock
+          fetch(`your-api-endpoint/products/${productId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ stock: parseInt(newStock) }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              // Update the UI with the new stock level
+              const productRow = document.querySelector(`#productTableBody tr:nth-child(${productId})`);
+              productRow.querySelector('td:nth-child(3)').textContent = data.stock;
+            })
+            .catch(error => console.error('Error updating stock:', error));
+        }
+      }
+    });
+  </script>
+</body>
+</html>
